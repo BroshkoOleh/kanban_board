@@ -13,27 +13,36 @@ interface IssuesState {
   issues: Issue[];
   loading: boolean;
   error: string | null;
-  fetchRepo: (repoUrl: string) => Promise<void>;
-  fetchIssues: (repoUrl: string) => Promise<void>;
+  fetchRepo: () => Promise<void>;
+  fetchIssues: () => Promise<void>;
+  page: number;
+  perPage: number;
+  hasMore: boolean;
+  repoUrl: string;
+  setRepoUrl: (url: string) => void;
 }
 
-export const useStore = create<IssuesState>((set) => ({
+export const useStore = create<IssuesState>((set, get) => ({
   repoData: {} as Repo,
   issues: [],
   loading: false,
   error: null,
+  page: 1,
+  perPage: 10,
+  hasMore: true,
+  repoUrl: "",
+  setRepoUrl: (url: string) => set({ repoUrl: url }),
 
   // Запит на інформацію про репозиторій
-  fetchRepo: async (repoUrl: string) => {
+  fetchRepo: async () => {
     try {
+      const currentState = get(); // Отримуємо поточний стан
+      if (!currentState.repoUrl) return; // Додана перевірка
       set({ loading: true, error: null });
 
-      // Витягуємо owner та repo з URL
-      const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
-      if (!match) throw new Error("Некоректний URL репозиторію.");
-
-      const [, owner, repo] = match;
-      const apiUrl = `https://api.github.com/repos/${owner}/${repo}`;
+      const repoPath = currentState.repoUrl.split("github.com/")[1];
+      console.log("repoPath", repoPath);
+      const apiUrl = `https://api.github.com/repos/${repoPath}`;
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -52,16 +61,16 @@ export const useStore = create<IssuesState>((set) => ({
   },
 
   // Запит на Issues
-  fetchIssues: async (repoUrl: string) => {
+  fetchIssues: async () => {
     try {
+      const currentState = get(); // Отримуємо поточний стан
+      if (!currentState.repoUrl) return; // Додана перевірка
       set({ loading: true, error: null });
 
       // Витягуємо owner та repo з URL
-      const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
-      if (!match) throw new Error("Некоректний URL репозиторію.");
+      const repoPath = currentState.repoUrl.split("github.com/")[1];
 
-      const [, owner, repo] = match;
-      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues?per_page=5`;
+      const apiUrl = `https://api.github.com/repos/${repoPath}/issues?per_page=${currentState.perPage}&page=${currentState.page}`;
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -73,9 +82,14 @@ export const useStore = create<IssuesState>((set) => ({
       if (!response.ok) throw new Error(`Помилка: ${response.statusText}`);
 
       const data: Issue[] = await response.json();
-      set({ issues: data, loading: false });
-    } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      set((state) => ({
+        issues: state.page === 1 ? data : [...state.issues, ...data],
+        loading: false,
+        page: state.page + 1,
+        hasMore: data.length === state.perPage,
+      }));
+    } catch (err) {
+      set({ error: (err as Error).message, loading: false });
     }
   },
 }));

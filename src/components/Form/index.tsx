@@ -1,10 +1,9 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import { ChangeEvent, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "../../store";
 
 export default function Form() {
-  const [repoUrl, setRepoUrl] = useState<string>("");
-  const { fetchIssues, fetchRepo, loading, error } = useStore();
+  const { fetchIssues, fetchRepo, setRepoUrl, repoUrl, loading, error } = useStore();
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRepoUrl(event.target.value);
@@ -12,8 +11,8 @@ export default function Form() {
 
   const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    fetchRepo(repoUrl);
-    fetchIssues(repoUrl);
+    fetchRepo();
+    fetchIssues();
   };
 
   return (
@@ -30,8 +29,6 @@ export default function Form() {
       <Button type="submit" disabled={loading}>
         {loading ? "Loading..." : "Load Issues"}
       </Button>
-
-      {error && <p className="text-red-500">{error}</p>}
     </form>
   );
 }
