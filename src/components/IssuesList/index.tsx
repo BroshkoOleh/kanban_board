@@ -3,14 +3,12 @@ import { useStore } from "../../store";
 import IssueItem from "../IssueItem";
 
 export default function IssuesList() {
-  const { issues, loading, error, fetchIssues, hasMore, repoUrl } = useStore();
+  const { issues, loading, error, fetchIssues, hasMore } = useStore();
   const observer = useRef<IntersectionObserver | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  console.log("IssuesList", repoUrl);
 
   // Викликаємо fetchIssues, коли користувач скролить до кінця
   useEffect(() => {
-    if (!repoUrl) return; // Додана перевірка
     if (observer.current) return; // Якщо спостерігач вже є, не створюємо новий
     observer.current = new IntersectionObserver(
       (entries) => {
