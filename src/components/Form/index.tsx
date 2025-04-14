@@ -1,18 +1,46 @@
 import { ChangeEvent, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { useStore } from "../../store";
+import { useStore } from "../../store/store";
+import { fetchRepo, fetchIssues } from "../../utils/API/api";
 
 export default function Form() {
-  const { fetchIssues, fetchRepo, setRepoUrl, repoUrl, loading, error } = useStore();
+  const {
+    setRepoData,
+    setRepoUrl,
+    setError,
+    setLoading,
+    setIssuesData,
+    page,
+    perPage,
+    repoUrl,
+    loading,
+  } = useStore();
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setRepoUrl(event.target.value);
+    const url = event.target.value;
+    setRepoUrl(url);
   };
 
-  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    fetchRepo();
-    fetchIssues();
+    setLoading(true);
+    try {
+      const data = await fetchRepo(repoUrl);
+      setRepoData(data);
+
+      const issuesData = await fetchIssues(repoUrl, perPage, page);
+      setIssuesData(issuesData);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error("Помилка під час завантаження даних:", err.message);
+        setError(err.message);
+      } else {
+        console.error("Невідома помилка:", err);
+        setError("Невідома помилка");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

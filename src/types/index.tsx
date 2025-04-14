@@ -8,3 +8,10 @@ export interface Issue {
     login: string;
   };
 }
+export interface Repo {
+  name: string;
+  owner: {
+    login: string;
+  };
+  stargazers_count: number;
+}
