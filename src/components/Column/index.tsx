@@ -1,8 +1,9 @@
 import { useDrop } from "react-dnd";
 import { useStore } from "../../store/store";
 import IssueItem from "../IssueItem";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { fetchIssues } from "../../utils/API/api";
+import { useInfiniteScroll } from "../../utils/hooks/useInfiniteScroll";
 
 interface ColumnProps {
   columnId: "todo" | "inProgress" | "done";
@@ -14,41 +15,16 @@ export default function Column({ columnId, title }: ColumnProps) {
     useStore();
 
   // Логіка нескінченного скролу для колонки ToDo
-  const observer = useRef<IntersectionObserver | null>(null);
-  const bottomRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (columnId !== "todo" || !repoUrl) return;
-
-    if (observer.current && bottomRef.current) {
-      observer.current.unobserve(bottomRef.current);
-    }
-
-    observer.current = new IntersectionObserver(
-      async (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && hasMore && !loading) {
-          try {
-            const issuesData = await fetchIssues(repoUrl, perPage, page);
-            setIssuesData(issuesData);
-          } catch (error) {
-            console.error("Помилка при отриманні даних з сервера:", error);
-          }
-        }
-      },
-      { threshold: 1.0 }
-    );
-
-    if (bottomRef.current) {
-      observer.current.observe(bottomRef.current);
-    }
-
-    return () => {
-      if (observer.current && bottomRef.current) {
-        observer.current.unobserve(bottomRef.current);
-      }
-    };
-  }, [columnId, hasMore, loading, page, repoUrl, perPage, setIssuesData]);
+  const bottomRef = useInfiniteScroll({
+    columnId,
+    repoUrl,
+    hasMore,
+    loading,
+    page,
+    perPage,
+    fetchData: fetchIssues,
+    setData: setIssuesData,
+  });
 
   //////////////////////////////////////////////////////////////////////////////////////
   const dropRef = useRef<HTMLUListElement | null>(null);
