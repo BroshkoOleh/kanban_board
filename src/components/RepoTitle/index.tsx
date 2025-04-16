@@ -9,9 +9,23 @@ export default function RepoTitle() {
     <div className="flex items-center justify-left gap-4 py-4">
       {repoData.owner?.login && repoData.name && (
         <p className="flex text-blue-600 gap-2">
-          <span>{repoData.owner.login}</span>
+          <a
+            href={`https://github.com/${repoData.owner.login}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            {repoData.owner.login}
+          </a>
           <span>&gt;</span>
-          <span>{repoData.name.charAt(0).toUpperCase() + repoData.name.slice(1)}</span>
+          <a
+            href={`https://github.com/${repoData.owner.login}/${repoData.name}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            {repoData.name.charAt(0).toUpperCase() + repoData.name.slice(1)}
+          </a>
         </p>
       )}
       {repoData.stargazers_count !== undefined && (
