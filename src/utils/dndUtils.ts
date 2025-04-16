@@ -1,9 +1,12 @@
 import { DropResult } from "@hello-pangea/dnd";
 import IssuesState from "../store/store";
+import { setColumnsToLocalStorage } from "../utils/localStorageUtils";
 
 export const handleDragEnd = (
   result: DropResult,
   columns: IssuesState["columns"],
+  repoUrl: string,
+
   setState: (state: Partial<IssuesState>) => void
 ) => {
   const { source, destination } = result;
@@ -23,11 +26,17 @@ export const handleDragEnd = (
   const [movedIssue] = sourceColumn.splice(source.index, 1);
   destColumn.splice(destination.index, 0, movedIssue);
 
+  const updatedColumns = {
+    ...columns,
+    [source.droppableId]: sourceColumn,
+    [destination.droppableId]: destColumn,
+  };
+
+  console.log("updatedColumns", updatedColumns);
+
+  setColumnsToLocalStorage(updatedColumns, repoUrl);
+
   setState({
-    columns: {
-      ...columns,
-      [source.droppableId]: sourceColumn,
-      [destination.droppableId]: destColumn,
-    },
+    columns: updatedColumns,
   });
 };

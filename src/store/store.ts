@@ -19,6 +19,8 @@ export default interface IssuesState {
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   setIssuesData: (data: Issue[]) => void;
+  setAllColumns: (columns: { todo: Issue[]; inProgress: Issue[]; done: Issue[] }) => void;
+  clearColumns: () => void;
 }
 
 export const useStore = create<IssuesState>((set, get) => ({
@@ -48,6 +50,16 @@ export const useStore = create<IssuesState>((set, get) => ({
       hasMore: data.length === perPage,
     });
   },
+  setAllColumns: (columns: { todo: Issue[]; inProgress: Issue[]; done: Issue[] }) =>
+    set({ columns }),
+  clearColumns: () =>
+    set({
+      columns: {
+        todo: [],
+        inProgress: [],
+        done: [],
+      },
+    }),
   setLoading: (isLoading: boolean) => set({ loading: isLoading }),
   setError: (error) => set({ error }),
 }));

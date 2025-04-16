@@ -13,6 +13,7 @@ export default function Column({ columnId, title }: ColumnProps) {
   const { columns, loading, error, repoUrl, hasMore, setIssuesData, page, perPage } = useStore();
 
   // Логіка нескінченного скролу для колонки ToDo
+
   const bottomRef = useInfiniteScroll({
     columnId,
     repoUrl,

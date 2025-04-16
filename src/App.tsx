@@ -7,10 +7,10 @@ import { useStore } from "./store/store";
 import { handleDragEnd } from "./utils/dndUtils";
 
 function App() {
-  const { columns } = useStore();
+  const { columns, repoUrl } = useStore();
 
   const onDragEnd = (result: DropResult) => {
-    handleDragEnd(result, columns, useStore.setState);
+    handleDragEnd(result, columns, repoUrl, useStore.setState);
   };
 
   return (
