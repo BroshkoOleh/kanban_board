@@ -19,12 +19,6 @@ interface IssuesState {
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   setIssuesData: (data: Issue[]) => void;
-  moveIssue: (
-    issueId: number,
-    sourceColumn: "todo" | "inProgress" | "done",
-    targetColumn: "todo" | "inProgress" | "done",
-    targetIndex?: number
-  ) => void;
 }
 
 export const useStore = create<IssuesState>((set, get) => ({
@@ -56,37 +50,4 @@ export const useStore = create<IssuesState>((set, get) => ({
   },
   setLoading: (isLoading: boolean) => set({ loading: isLoading }),
   setError: (error) => set({ error }),
-
-  moveIssue: (
-    issueId: number,
-    sourceColumn: "todo" | "inProgress" | "done",
-    targetColumn: "todo" | "inProgress" | "done",
-    targetIndex?: number
-  ) =>
-    set((state) => {
-      const newColumns = { ...state.columns };
-      let issueToMove: Issue | undefined;
-
-      // Знаходимо issue у вихідній колонці
-      newColumns[sourceColumn] = newColumns[sourceColumn].filter((issue) => {
-        if (issue.id === issueId) {
-          issueToMove = issue;
-          return false;
-        }
-        return true;
-      });
-
-      // Додаємо issue до цільової колонки
-      if (issueToMove) {
-        const targetIssues = [...newColumns[targetColumn]];
-        if (targetIndex !== undefined) {
-          targetIssues.splice(targetIndex, 0, issueToMove);
-        } else {
-          targetIssues.push(issueToMove);
-        }
-        newColumns[targetColumn] = targetIssues;
-      }
-
-      return { columns: newColumns };
-    }),
 }));
