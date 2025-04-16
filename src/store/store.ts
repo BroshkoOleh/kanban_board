@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { Issue, Repo } from "../types";
 
-interface IssuesState {
+export default interface IssuesState {
   repoData: Repo;
   columns: {
     todo: Issue[];

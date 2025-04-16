@@ -2,8 +2,17 @@ import "./App.css";
 import Form from "./components/Form";
 import RepoTitle from "./components/RepoTitle";
 import Column from "./components/Column";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import { useStore } from "./store/store";
+import { handleDragEnd } from "./utils/dndUtils";
 
 function App() {
+  const { columns } = useStore();
+
+  const onDragEnd = (result: DropResult) => {
+    handleDragEnd(result, columns, useStore.setState);
+  };
+
   return (
     <>
       <header className="p-5">
@@ -13,9 +22,11 @@ function App() {
       </header>
 
       <main className="p-5 flex gap-5">
-        <Column columnId="todo" title="ToDo" />
-        <Column columnId="inProgress" title="In Progress" />
-        <Column columnId="done" title="Done" />
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Column columnId="todo" title="ToDo" />
+          <Column columnId="inProgress" title="In Progress" />
+          <Column columnId="done" title="Done" />
+        </DragDropContext>
       </main>
     </>
   );
