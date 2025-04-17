@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Issue, Repo } from "../types";
+import { setColumnsToLocalStorage, setPageToLocalStorage } from "../utils/localStorageUtils";
 
 export default interface IssuesState {
   repoData: Repo;
@@ -19,8 +20,8 @@ export default interface IssuesState {
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   setIssuesData: (data: Issue[]) => void;
-  setAllColumns: (columns: { todo: Issue[]; inProgress: Issue[]; done: Issue[] }) => void;
-  clearColumns: () => void;
+  setLsData: (columns: { todo: Issue[]; inProgress: Issue[]; done: Issue[] }, page: number) => void;
+  clearStore: () => void;
 }
 
 export const useStore = create<IssuesState>((set, get) => ({
@@ -37,28 +38,37 @@ export const useStore = create<IssuesState>((set, get) => ({
   setRepoData: (data: Repo) => set({ repoData: data }),
 
   setIssuesData: (data: Issue[]) => {
-    const { columns, perPage, page } = get();
+    const { columns, perPage, page, repoUrl } = get();
     const newIssues = page === 1 ? data : [...columns.todo, ...data];
+    const updatedColumns = {
+      ...columns,
+      todo: newIssues,
+    };
+    const updatedPage = page + 1;
+    setColumnsToLocalStorage(updatedColumns, repoUrl);
+    setPageToLocalStorage(updatedPage, repoUrl);
 
     set({
-      columns: {
-        ...columns,
-        todo: newIssues,
-      },
+      columns: updatedColumns,
       loading: false,
-      page: page + 1,
+      page: updatedPage,
       hasMore: data.length === perPage,
     });
   },
-  setAllColumns: (columns: { todo: Issue[]; inProgress: Issue[]; done: Issue[] }) =>
-    set({ columns }),
-  clearColumns: () =>
+  setLsData: (columns: { todo: Issue[]; inProgress: Issue[]; done: Issue[] }, page: number) =>
+    set({
+      columns,
+      page,
+    }),
+
+  clearStore: () =>
     set({
       columns: {
         todo: [],
         inProgress: [],
         done: [],
       },
+      page: 1,
     }),
   setLoading: (isLoading: boolean) => set({ loading: isLoading }),
   setError: (error) => set({ error }),

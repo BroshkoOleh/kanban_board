@@ -28,8 +28,9 @@ export default function Column({ columnId, title }: ColumnProps) {
   //////////////////////////////////////////////////////////////////////////////////////
 
   return (
-    <section className=" w-1/3">
-      <h2 className="pb-1">{title}</h2>
+    <section className=" w-1/3 relative">
+      <h2 className="pb-3">{title}</h2>
+      <p className="absolute right-0.5 top-3 text-gray-500">issues: {columns[columnId].length}</p>
 
       <Droppable droppableId={columnId}>
         {(provided) => (

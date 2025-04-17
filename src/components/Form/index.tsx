@@ -2,7 +2,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "../../store/store";
 import { fetchRepo, fetchIssues } from "../../utils/API/api";
-import { getColumnsFromLocalStorage } from "../../utils/localStorageUtils";
+import { getColumnsFromLocalStorage, getPageFromLocalStorage } from "../../utils/localStorageUtils";
 
 export default function Form() {
   const [inputUrl, setInputUrl] = useState("");
@@ -13,8 +13,8 @@ export default function Form() {
     setError,
     setLoading,
     setIssuesData,
-    setAllColumns,
-    clearColumns,
+    setLsData,
+    clearStore,
     repoUrl,
     columns,
     page,
@@ -34,16 +34,21 @@ export default function Form() {
     try {
       const data = await fetchRepo(inputUrl); // завантажуємо репозиторій
       setRepoData(data);
-      debugger;
+
       // 1. Отримуємо дані з LS
       const savedColumns = getColumnsFromLocalStorage(inputUrl);
+      const savedPage = getPageFromLocalStorage(inputUrl);
 
-      if (savedColumns) {
-        // Якщо є збережені колонки в LS — оновлюємо Zustand
-        setAllColumns(savedColumns);
+      if (savedColumns && savedPage) {
+        // Якщо є збережені колонки і сторінка в LS — оновлюємо Zustand
+        setLsData(savedColumns, savedPage);
       } else {
-        clearColumns(); // <- очищаємо перед fetch
-        const issuesData = await fetchIssues(inputUrl, perPage, page);
+        clearStore(); // <- очищаємо перед fetch
+
+        // const { page: resetPage } = useStore.getState();
+
+        const issuesData = await fetchIssues(inputUrl, perPage, 1);
+
         setIssuesData(issuesData);
       }
     } catch (err) {

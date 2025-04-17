@@ -32,8 +32,6 @@ export const handleDragEnd = (
     [destination.droppableId]: destColumn,
   };
 
-  console.log("updatedColumns", updatedColumns);
-
   setColumnsToLocalStorage(updatedColumns, repoUrl);
 
   setState({
