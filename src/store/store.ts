@@ -30,7 +30,7 @@ export const useStore = create<IssuesState>((set, get) => ({
   loading: false,
   error: null,
   page: 1,
-  perPage: 5,
+  perPage: 20,
   hasMore: true,
   repoUrl: "",
   setRepoUrl: (url: string) => set({ repoUrl: url }),

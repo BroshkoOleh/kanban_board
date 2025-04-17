@@ -18,13 +18,29 @@ export default function IssueItem({ item, index }: IssueItemProps) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <p className="text-left break-words w-full">{item.title}</p>
-          <p>
+          <p className="text-left break-words w-full font-medium ">{item.title}</p>
+          <p className="text-gray-800">
             #{item.number} created {formatDate(item.created_at)}
           </p>
-          <p>
-            {item.user.login} | Comments: {item.comments}
-          </p>
+          <div className="flex items-center gap-2">
+            <a
+              className="text-blue-600 hover:underline"
+              href={item.user.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {item.user.login}
+            </a>
+            <span>|</span>
+            <a
+              className="text-blue-600 hover:underline"
+              href={item.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Comments: {item.comments}
+            </a>
+          </div>
         </li>
       )}
     </Draggable>

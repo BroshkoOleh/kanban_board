@@ -4,8 +4,10 @@ export interface Issue {
   title: string;
   created_at: string;
   comments: number;
+  html_url: string;
   user: {
     login: string;
+    html_url: string;
   };
 }
 export interface Repo {

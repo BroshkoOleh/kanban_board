@@ -1,8 +1,13 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
+import RepoInput from "../RepoInput";
 import { useStore } from "../../store/store";
 import { fetchRepo, fetchIssues } from "../../utils/API/api";
-import { getColumnsFromLocalStorage, getPageFromLocalStorage } from "../../utils/localStorageUtils";
+import {
+  getColumnsFromLocalStorage,
+  getPageFromLocalStorage,
+  setLastRepoUrl,
+} from "../../utils/localStorageUtils";
 
 export default function Form() {
   const [inputUrl, setInputUrl] = useState("");
@@ -15,48 +20,43 @@ export default function Form() {
     setIssuesData,
     setLsData,
     clearStore,
-    repoUrl,
-    columns,
-    page,
     perPage,
     loading,
   } = useStore();
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputUrl(event.target.value);
-  };
+  // для оновлення підказок після сабміту
+  const [suggestionsKey, setSuggestionsKey] = useState(0);
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setRepoUrl(inputUrl); // оновлюємо стейт, але використовуємо inputUrl далі
+    setRepoUrl(inputUrl);
     setLoading(true);
 
     try {
-      const data = await fetchRepo(inputUrl); // завантажуємо репозиторій
+      const data = await fetchRepo(inputUrl);
       setRepoData(data);
+      setLastRepoUrl(inputUrl);
 
-      // 1. Отримуємо дані з LS
       const savedColumns = getColumnsFromLocalStorage(inputUrl);
       const savedPage = getPageFromLocalStorage(inputUrl);
 
       if (savedColumns && savedPage) {
-        // Якщо є збережені колонки і сторінка в LS — оновлюємо Zustand
         setLsData(savedColumns, savedPage);
       } else {
-        clearStore(); // <- очищаємо перед fetch
-
-        // const { page: resetPage } = useStore.getState();
-
+        clearStore();
         const issuesData = await fetchIssues(inputUrl, perPage, 1);
-
         setIssuesData(issuesData);
       }
+      //  Зберігаємо посилання в історію
+      setLastRepoUrl(inputUrl);
+
+      // Оновлюємо RepoInput (форсим перерендер)
+      setSuggestionsKey((prev) => prev + 1);
     } catch (err) {
       if (err instanceof Error) {
-        console.error("Помилка під час завантаження даних:", err.message);
+        console.error("Помилка під час завантаження:", err.message);
         setError(err.message);
       } else {
-        console.error("Невідома помилка:", err);
         setError("Невідома помилка");
       }
     } finally {
@@ -65,15 +65,8 @@ export default function Form() {
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="flex gap-4">
-      <input
-        className="w-full border h-9 border-gray-700 rounded-2xl pl-5"
-        type="text"
-        value={inputUrl}
-        onChange={handleInputChange}
-        placeholder="Enter repo URL"
-        required
-      />
+    <form onSubmit={handleFormSubmit} className="flex gap-4 w-full">
+      <RepoInput key={suggestionsKey} value={inputUrl} onChange={setInputUrl} />
 
       <Button type="submit" disabled={loading}>
         {loading ? "Loading..." : "Load Issues"}

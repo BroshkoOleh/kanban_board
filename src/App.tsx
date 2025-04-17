@@ -17,11 +17,11 @@ function App() {
     <>
       <header className="p-5">
         <Form />
-        <p>https://github.com/facebook/hhvm</p>
+        {/* <p>https://github.com/facebook/hhvm</p> */}
         <RepoTitle />
       </header>
 
-      <main className="p-5 flex gap-5">
+      <main className="p-5 flex gap-5 ">
         <DragDropContext onDragEnd={onDragEnd}>
           <Column columnId="todo" title="ToDo" />
           <Column columnId="inProgress" title="In Progress" />
