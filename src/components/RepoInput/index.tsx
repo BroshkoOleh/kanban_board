@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, ChangeEvent } from "react";
+import { useEffect, useRef, useState, ChangeEvent, memo } from "react";
 import { getLastRepoUrls } from "@/utils/localStorageUtils";
 
 interface RepoInputProps {
@@ -8,7 +8,7 @@ interface RepoInputProps {
 
 const HHVM_REPO = "https://github.com/facebook/hhvm";
 
-export default function RepoInput({ value, onChange }: RepoInputProps) {
+function RepoInput({ value, onChange }: RepoInputProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [repoSuggestions, setRepoSuggestions] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -73,3 +73,5 @@ export default function RepoInput({ value, onChange }: RepoInputProps) {
     </div>
   );
 }
+
+export default memo(RepoInput);

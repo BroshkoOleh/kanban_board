@@ -1,18 +1,22 @@
 import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import RepoInput from "../RepoInput";
-import { useStore } from "../../store/store";
 import { fetchRepo, fetchIssues } from "../../utils/API/api";
 import {
   getColumnsFromLocalStorage,
   getPageFromLocalStorage,
   setLastRepoUrl,
 } from "../../utils/localStorageUtils";
+import { useStoreGeneralInfo } from "../../store/useStoreGeneralInfo";
 
 export default function Form() {
   const [inputUrl, setInputUrl] = useState("");
-
+  // для оновлення підказок після сабміту
+  const [suggestionsKey, setSuggestionsKey] = useState(0);
+  // Використовуємо кастомний хук
   const {
+    perPage,
+    loading,
     setRepoData,
     setRepoUrl,
     setError,
@@ -20,12 +24,7 @@ export default function Form() {
     setIssuesData,
     setLsData,
     clearStore,
-    perPage,
-    loading,
-  } = useStore();
-
-  // для оновлення підказок після сабміту
-  const [suggestionsKey, setSuggestionsKey] = useState(0);
+  } = useStoreGeneralInfo();
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

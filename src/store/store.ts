@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { Issue, Repo } from "../types";
 import { setColumnsToLocalStorage, setPageToLocalStorage } from "../utils/localStorageUtils";
 
-export default interface IssuesState {
+export interface IssuesState {
   repoData: Repo;
   columns: {
     todo: Issue[];
@@ -22,6 +22,7 @@ export default interface IssuesState {
   setIssuesData: (data: Issue[]) => void;
   setLsData: (columns: { todo: Issue[]; inProgress: Issue[]; done: Issue[] }, page: number) => void;
   clearStore: () => void;
+  setColumns: (columns: { todo: Issue[]; inProgress: Issue[]; done: Issue[] }) => void;
 }
 
 export const useStore = create<IssuesState>((set, get) => ({
@@ -70,6 +71,19 @@ export const useStore = create<IssuesState>((set, get) => ({
       },
       page: 1,
     }),
+  setColumns: (newColumns) => {
+    const { repoUrl, columns } = get();
+    // Уникаємо оновлення, якщо колонки ідентичні
+    if (
+      newColumns.todo === columns.todo &&
+      newColumns.inProgress === columns.inProgress &&
+      newColumns.done === columns.done
+    ) {
+      return;
+    }
+    setColumnsToLocalStorage(newColumns, repoUrl);
+    set({ columns: newColumns });
+  },
   setLoading: (isLoading: boolean) => set({ loading: isLoading }),
   setError: (error) => set({ error }),
 }));

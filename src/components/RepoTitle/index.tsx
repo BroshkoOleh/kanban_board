@@ -1,7 +1,10 @@
-import { useStore } from "../../store/store";
+import { useStore, IssuesState } from "../../store/store";
+import { memo } from "react";
 
-export default function RepoTitle() {
-  const { repoData } = useStore();
+function RepoTitle() {
+  // const { repoData } = useStore();
+  const selectRepoData = (state: IssuesState) => state.repoData;
+  const repoData = useStore(selectRepoData);
 
   if (!repoData || Object.keys(repoData).length === 0) return null;
 
@@ -40,3 +43,4 @@ export default function RepoTitle() {
     </div>
   );
 }
+export default memo(RepoTitle);

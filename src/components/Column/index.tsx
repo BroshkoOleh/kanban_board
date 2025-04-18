@@ -1,16 +1,18 @@
-import { useStore } from "../../store/store";
+import { memo } from "react";
 import IssueItem from "../IssueItem";
 import { fetchIssues } from "../../utils/API/api";
 import { useInfiniteScroll } from "../../utils/hooks/useInfiniteScroll";
 import { Droppable } from "@hello-pangea/dnd";
+import { useStoreColumnInfo } from "../../store/useStoreColumnInfo";
 
 interface ColumnProps {
   columnId: "todo" | "inProgress" | "done";
   title: string;
 }
 
-export default function Column({ columnId, title }: ColumnProps) {
-  const { columns, loading, error, repoUrl, hasMore, setIssuesData, page, perPage } = useStore();
+function Column({ columnId, title }: ColumnProps) {
+  const { column, loading, error, repoUrl, hasMore, page, perPage, setIssuesData } =
+    useStoreColumnInfo(columnId);
 
   // Логіка нескінченного скролу для колонки ToDo
 
@@ -30,7 +32,7 @@ export default function Column({ columnId, title }: ColumnProps) {
   return (
     <section className=" w-1/3 relative">
       <h2 className="pb-3">{title}</h2>
-      <p className="absolute right-0.5 top-3 text-gray-500">issues: {columns[columnId].length}</p>
+      <p className="absolute right-0.5 top-3 text-gray-500">issues: {column.length}</p>
 
       <Droppable droppableId={columnId}>
         {(provided) => (
@@ -39,11 +41,11 @@ export default function Column({ columnId, title }: ColumnProps) {
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
-            {columns[columnId].map((item, index) => (
+            {column.map((item, index) => (
               <IssueItem key={item.id} item={item} index={index} />
             ))}
             {provided.placeholder}
-            {columnId === "todo" && columns.todo.length > 0 && (
+            {columnId === "todo" && column.length > 0 && (
               <div ref={bottomRef} className="h-2"></div>
             )}
             {columnId === "todo" && loading && <p>Loading...</p>}
@@ -54,7 +56,7 @@ export default function Column({ columnId, title }: ColumnProps) {
     </section>
   );
 }
-
+export default memo(Column);
 // Додано Droppable від @hello-pangea/dnd.
 // Елемент <ul> огорнуто в Droppable, з передачею droppableId={columnId}.
 // Додано provided.innerRef і provided.droppableProps до <ul>.

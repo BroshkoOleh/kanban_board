@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Issue } from "../../types";
 import { formatDate } from "../../utils/formatDate";
 import { Draggable } from "@hello-pangea/dnd";
@@ -8,7 +9,7 @@ interface IssueItemProps {
   index: number;
 }
 
-export default function IssueItem({ item, index }: IssueItemProps) {
+function IssueItem({ item, index }: IssueItemProps) {
   return (
     <Draggable draggableId={item.id.toString()} index={index}>
       {(provided) => (
@@ -51,3 +52,19 @@ export default function IssueItem({ item, index }: IssueItemProps) {
 // Передано draggableId={item.id.toString()} (унікальний ідентифікатор) і index.
 // Елемент <li> огорнуто в Draggable, з передачею provided.innerRef,
 // provided.draggableProps і provided.dragHandleProps.
+
+// Кастомна функція порівняння для глибокої перевірки item
+const arePropsEqual = (prevProps: IssueItemProps, nextProps: IssueItemProps) => {
+  return (
+    prevProps.index === nextProps.index &&
+    prevProps.item.id === nextProps.item.id &&
+    prevProps.item.title === nextProps.item.title &&
+    prevProps.item.number === nextProps.item.number &&
+    prevProps.item.created_at === nextProps.item.created_at &&
+    prevProps.item.user.login === nextProps.item.user.login &&
+    prevProps.item.user.html_url === nextProps.item.user.html_url &&
+    prevProps.item.html_url === nextProps.item.html_url &&
+    prevProps.item.comments === nextProps.item.comments
+  );
+};
+export default memo(IssueItem, arePropsEqual);
